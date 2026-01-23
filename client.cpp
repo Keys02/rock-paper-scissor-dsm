@@ -11,7 +11,7 @@
 int main() {
   int sock = 0;
   struct sockaddr_in serv_addr;
-  const char *hello = "Hello from the client";
+  const char *player_shoot = "Rock";
 
   // Create socket
   sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -36,7 +36,7 @@ int main() {
   }
 
   // Send data
-  send(sock, hello, strlen(hello), 0);
+  send(sock, player_shoot, strlen(player_shoot), 0);
   std::cout << "Message sent" << std::endl;
 
   // Close socket
