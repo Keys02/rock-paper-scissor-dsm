@@ -11,7 +11,7 @@
 int main() {
   int sock = 0;
   struct sockaddr_in serv_addr;
-  const char *hello = "This is a rock paper scissor game we are playing it like it or not";
+  const char *hello = "Hello from the client";
 
   // Create socket
   sock = socket(AF_INET, SOCK_STREAM, 0);
