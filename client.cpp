@@ -2,16 +2,16 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-
-#include <cstring>
 #include <iostream>
+#include "src/Player.hpp"
 
 #define PORT 8080
 
 int main() {
   int sock = 0;
   struct sockaddr_in serv_addr;
-  const char *player_shoot = "Rock";
+  Player player_one;
+  std::string player_shoot = player_one.shoot();
 
   // Create socket
   sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -36,11 +36,10 @@ int main() {
   }
 
   // Send data
-  send(sock, player_shoot, strlen(player_shoot), 0);
+  send(sock, player_shoot.c_str(), player_shoot.size(), 0);
   std::cout << "Message sent" << std::endl;
 
   // Close socket
   close(sock);
   return 0;
 }
-
