@@ -1,8 +1,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <typeinfo>
-#include <cstring>
 #include <iostream>
 #include "src/GameActions.cpp"
 
@@ -40,21 +38,28 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  // Accept a connection
-  new_socket =
-      accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
-  if (new_socket < 0) {
-    perror("accept");
-    exit(EXIT_FAILURE);
+  // Accept multiple connection
+  while (true) { 
+      // Keep the server running forever
+      new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen); // Return a new socket dedicated to that specific client
+
+      if (new_socket < 0) {
+        perror("accept");
+        continue;
+      }
+
+      if (fork() == 0) {
+        close(server_fd);
+
+        char buffer[1024] = {0};
+        read(new_socket, buffer, 1024); // Read 1024 bytes of characters
+        std::cout << "Client says: " << buffer << '\n';
+
+        close(new_socket); // Close socket connection 
+        close(server_fd); // Close server connection
+        exit(0);
+      }
   }
 
-  // Read data
-  read(new_socket, buffer, 1024);
-  std::cout << draw_hand(buffer) << '\n';
-  // std::cout << "Message received from the client" << buffer << '\n';
-
-  // Close socket
-  close(new_socket);
-  close(server_fd);
   return 0;
 }

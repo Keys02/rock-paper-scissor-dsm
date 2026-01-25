@@ -24,6 +24,7 @@ class Player {
         std::string get_hand_gesture() {
             return hand_gesture;
         }
+
     private:
         std::string hand_gesture;
 };
