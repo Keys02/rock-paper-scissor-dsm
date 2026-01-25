@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <cstring>
 #include <iostream>
+#include "src/GameActions.cpp"
 
 #define PORT 8080
 
@@ -49,11 +50,11 @@ int main() {
 
   // Read data
   read(new_socket, buffer, 1024);
-  std::cout << "Message received from the client" << buffer << '\n';
+  std::cout << draw_hand(buffer) << '\n';
+  // std::cout << "Message received from the client" << buffer << '\n';
 
   // Close socket
   close(new_socket);
   close(server_fd);
   return 0;
 }
-

@@ -55,32 +55,32 @@ std::string shoot_computer() {
 
 }
 
-std::string choose_winner(std::string player_choice, std::string computer_choice) {
-    char p_s  = player_choice[0];
+std::string choose_winner(std::string player_one_choice, std::string player_two_choice) {
+    char p_s  = player_one_choice[0];
 
     switch (p_s) {
         case 'R':
-            if (computer_choice == "Rock")
+            if (player_two_choice == "Rock")
                 return "It's a tie";
-            else if (computer_choice == "Paper")
+            else if (player_two_choice == "Paper")
                 return "You lost";
-            else if (computer_choice == "Scissor")
+            else if (player_two_choice == "Scissor")
                 return "You won";
             break;
         case 'P':
-            if (computer_choice == "Rock")
+            if (player_two_choice == "Rock")
                 return "You won";
-            else if (computer_choice == "Paper")
+            else if (player_two_choice == "Paper")
                 return "It's a tie";
-            else if (computer_choice == "Scissor")
+            else if (player_two_choice == "Scissor")
                 return "You lost";
             break;
         case 'S':
-            if (computer_choice == "Rock")
+            if (player_two_choice == "Rock")
                 return "You lost";
-            else if (computer_choice == "Paper")
+            else if (player_two_choice == "Paper")
                 return "You won";
-            else if (computer_choice == "Scissor")
+            else if (player_two_choice == "Scissor")
                 return "It's a tie";
             break;
     }
@@ -109,9 +109,4 @@ void start_game() {
     std::cout << draw_hand(computer_shoot) << '\n';
 
     std::cout << "Result: " << choose_winner(player_shoot, computer_shoot) << '\n' ;
-}
-
-int main() {
-    start_game();
-    return 0;
 }

@@ -10,6 +10,8 @@
 int main() {
   int sock = 0;
   struct sockaddr_in serv_addr;
+
+  // Create players
   Player player_one;
   std::string player_shoot = player_one.shoot();
 
