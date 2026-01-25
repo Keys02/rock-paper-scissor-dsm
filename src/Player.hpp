@@ -17,9 +17,13 @@ class Player {
                         std::cout << "Player: ";
                         std::cin >> choice;
             } while (choice != "Rock" && choice != "Paper" && choice != "Scissor");
-
+            hand_gesture = choice;
             return choice;
         }
+
+        std::string get_hand_gesture() {
+            return hand_gesture;
+        }
     private:
-        std::string player_shoot;
+        std::string hand_gesture;
 };

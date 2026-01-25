@@ -13,7 +13,9 @@ int main() {
 
   // Create players
   Player player_one;
-  std::string player_shoot = player_one.shoot();
+  Player player_two;
+  std::string player_one_shoot = player_one.shoot();
+  std::string player_two_shoot = player_two.shoot();
 
   // Create socket
   sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -38,7 +40,7 @@ int main() {
   }
 
   // Send data
-  send(sock, player_shoot.c_str(), player_shoot.size(), 0);
+  send(sock, player_one_shoot.c_str(), player_one_shoot.size(), 0);
   std::cout << "Message sent" << std::endl;
 
   // Close socket
