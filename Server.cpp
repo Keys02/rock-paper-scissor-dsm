@@ -1,142 +1,109 @@
 #include <netinet/in.h>   // sockaddr_in, htons, INADDR_ANY
 #include <sys/socket.h>   // socket(), bind(), listen(), accept()
-#include <unistd.h>      // read(), close(), fork()
+#include <unistd.h>      // read(), close()
 #include <iostream>      // std::cout
-#include <signal.h>      // signal(), SIGCHLD
-#include <sys/wait.h>    // waitpid()
+#include <vector>        // std::vector
+#include <string>        // std::string
+#include <cstring>       // memset
 #include "src/GameActions.cpp"
 
-#define PORT 8080        // Port the server will listen on
+#define PORT 8080
 
-// Keeps track of how many clients are currently connected
-// IMPORTANT: This variable is meaningful ONLY in the parent process
+// Tracks connected players
 int client_count = 0;
-int player_count = 0;
+int player_id = 0;
 
-/*
-  This function is called automatically by the OS
-  whenever a child process terminates (SIGCHLD signal).
-
-  Each child process represents one connected client.
-  When a child exits, that client is considered disconnected.
-*/
-void handle_sigchld(int) {
-
-    // Reap all finished child processes (non-blocking)
-    while (waitpid(-1, nullptr, WNOHANG) > 0) {
-        client_count--;  // One client has disconnected
-
-        std::cout << "Client disconnected. Active clients: "
-                  << client_count << std::endl;
-    }
-}
+// Caches all data sent by clients
+std::vector<std::string> player_shoots;
 
 int main() {
-    int server_fd;       // Listening socket (server)
-    int new_socket;      // Socket for a connected client
-    struct sockaddr_in address; // Stores server address info
-    int opt = 1;         // Option value for setsockopt
-    int addrlen = sizeof(address);
-
-    // Register signal handler for SIGCHLD
-    // This allows the parent process to know when a client (child) exits
-    signal(SIGCHLD, handle_sigchld);
+    int server_fd, client_socket;
+    struct sockaddr_in address;
+    socklen_t addrlen = sizeof(address);
+    int opt = 1;
 
     // -------------------- CREATE SOCKET --------------------
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
         perror("socket failed");
-        exit(EXIT_FAILURE);
+        return 1;
     }
 
     // -------------------- SOCKET OPTIONS --------------------
-    // Allows reusing the same port immediately after restarting the server
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    // -------------------- SERVER ADDRESS SETUP --------------------
-    address.sin_family = AF_INET;         // IPv4
-    address.sin_addr.s_addr = INADDR_ANY; // Accept connections on any network interface
-    address.sin_port = htons(PORT);       // Convert port to network byte order
+    // -------------------- SERVER ADDRESS --------------------
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
 
-    // -------------------- BIND SOCKET --------------------
-    // Bind the socket to the specified IP address and port
+    // -------------------- BIND --------------------
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
         perror("bind failed");
-        exit(EXIT_FAILURE);
+        return 1;
     }
 
     // -------------------- LISTEN --------------------
-    // Start listening for incoming connections
-    if (listen(server_fd, 3) < 0) {
+    if (listen(server_fd, 5) < 0) {
         perror("listen failed");
-        exit(EXIT_FAILURE);
+        return 1;
     }
 
-    std::cout << "Server listening on port " << PORT << std::endl;
+    std::cout << "Server listening on port " << PORT << "\n";
 
     // -------------------- ACCEPT LOOP --------------------
-    // This loop keeps the server running forever
     while (true) {
 
-        // accept() blocks until a client connects
-        // It returns a NEW socket dedicated to that client
-        new_socket = accept(server_fd,
-                            (struct sockaddr *)&address,
-                            (socklen_t *)&addrlen);
+        client_socket = accept(server_fd,
+                               (struct sockaddr *)&address,
+                               &addrlen);
 
-        if (new_socket < 0) {
-            perror("accept");
-            continue; // Keep server running even if accept fails
+        if (client_socket < 0) {
+            perror("accept failed");
+            continue;
         }
 
-        // Increase the player count
-        player_count++; 
-
-        // A new client has successfully connected
         client_count++;
-        std::cout << "Client connected. Active clients: "
-                  << client_count << std::endl;
+        player_id++;
 
-        // -------------------- FORK --------------------
-        // Create a new process to handle this client
-        if (fork() == 0) {
-            // -------- CHILD PROCESS --------
+        std::cout << "\nClient connected"
+                  << " | Active clients: " << client_count
+                  << " | Player ID: " << player_id << "\n";
 
-            // Child does NOT accept new clients
-            close(server_fd);
+        char buffer[1024];
+        memset(buffer, 0, sizeof(buffer));
 
-            char buffer[1024] = {0};
+        ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer) - 1);
 
-            // Read data sent by the client
-            ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
-            // std::vector<std::string> player_shoots; // Vector for storing all the players hand gestures
+        if (bytes_read > 0) {
+            buffer[bytes_read] = '\0';
 
-            if (bytes_read > 0) {
-                buffer[bytes_read] = '\0'; // Null-terminate string
-                std::cout << "Player " << player_count << ": " << buffer << "\n";
-                std::cout << draw_hand(buffer) << '\n';
-                // player_shoots.push_back(buffer); // Cache all players hand gestures
+            // Cache player move
+            player_shoots.push_back(buffer);
 
-                // for(int i = 0; i < player_shoots.size(); i++) {
-                //   std::cout << "Player " << i << '\n';
-                //   std::cout << draw_hand(player_shoots[i]) << '\n';
-                // }
+            // std::cout << "Player " << player_id << " sent: "
+            //           << buffer << "\n";
+
+            // std::cout << draw_hand(buffer) << "\n";
+
+            // Display all cached player moves
+            std::cout << "\n=== All Cached Player Moves ===\n";
+            for (size_t i = 0; i < player_shoots.size(); i++) {
+                std::cout << "Player " << i + 1 << ":\n";
+                std::cout << draw_hand(player_shoots[i]) << "\n";
             }
-
-            // Close connection with this client
-            close(new_socket);
-
-            // Exit child process
-            // This triggers SIGCHLD in the parent
-            exit(0);
         }
 
-        // -------- PARENT PROCESS --------
-        // Parent does not communicate with the client
-        // It only accepts new connections
-        close(new_socket);
+        close(client_socket);
+
+        client_count--;
+
+        std::cout << "Client disconnected"
+                  << " | Active clients: " << client_count << "\n";
     }
 
+    close(server_fd);
     return 0;
 }
+
 
