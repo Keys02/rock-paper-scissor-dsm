@@ -81,25 +81,25 @@ int main() {
             // Cache player move
             player_shoots.push_back(buffer);
 
-            // std::cout << "Player " << player_id << " sent: "
-            //           << buffer << "\n";
+            client_count--;
 
-            // std::cout << draw_hand(buffer) << "\n";
+            std::cout << "Client disconnected"
+                    << " | Active clients: " << client_count << "\n";
 
             // Display all cached player moves
-            std::cout << "\n=== All Cached Player Moves ===\n";
-            for (size_t i = 0; i < player_shoots.size(); i++) {
-                std::cout << "Player " << i + 1 << ":\n";
-                std::cout << draw_hand(player_shoots[i]) << "\n";
+            if (player_shoots.size() == 2) {
+                for (size_t i = 0; i < player_shoots.size(); i++) {
+                    std::cout << "\n";
+                    std::cout << "Player " << i + 1 << ":\n";
+                    std::cout << draw_hand(player_shoots[i]) << "\n";
+
+                    if (i == 1)
+                        std::cout << "Game result: " << choose_winner(player_shoots[i-1], player_shoots[i]) << '\n';
+                }
             }
         }
 
         close(client_socket);
-
-        client_count--;
-
-        std::cout << "Client disconnected"
-                  << " | Active clients: " << client_count << "\n";
     }
 
     close(server_fd);

@@ -1,6 +1,4 @@
 // A program which plays the game rock paper scissors
-#include <iostream>
-#include <vector>
 #include <string>
 
 std::string draw_hand(std::string choice) {
@@ -38,23 +36,6 @@ std::string draw_hand(std::string choice) {
     return hand;
 }
 
-std::string shoot_player() {
-    std::string choice;
-    std::cout << "Player: ";
-    std::cin >> choice;
-    std::cout << draw_hand(choice) << "\n";
-    return choice;
-}
-
-std::string shoot_computer() {
-    std::vector<std::string> choices = {"Rock", "Paper", "Scissor"};
-    srand(time(0));
-    int rand_num = (rand() % 3);
-    std::string computer_choice = choices.at(rand_num);
-    return computer_choice;
-
-}
-
 std::string choose_winner(std::string player_one_choice, std::string player_two_choice) {
     char p_s  = player_one_choice[0];
 
@@ -63,50 +44,26 @@ std::string choose_winner(std::string player_one_choice, std::string player_two_
             if (player_two_choice == "Rock")
                 return "It's a tie";
             else if (player_two_choice == "Paper")
-                return "You lost";
+                return "Player 2 won";
             else if (player_two_choice == "Scissor")
-                return "You won";
+                return "Player 1 won";
             break;
         case 'P':
             if (player_two_choice == "Rock")
-                return "You won";
+                return "Player 1 won";
             else if (player_two_choice == "Paper")
                 return "It's a tie";
             else if (player_two_choice == "Scissor")
-                return "You lost";
+                return "Player 2 won";
             break;
         case 'S':
             if (player_two_choice == "Rock")
-                return "You lost";
+                return "Player 2 won";
             else if (player_two_choice == "Paper")
-                return "You won";
+                return "Player 1 won";
             else if (player_two_choice == "Scissor")
                 return "It's a tie";
             break;
     }
     return "";
-}
-
-void start_game() {
-    std::string player_shoot;
-    std::string computer_shoot;
-
-    do {
-        std::cout << "################################################################################################################\n"
-                  << "****************************************************************************************************************\n"
-                  << "                                                  How to play                                                   \n"
-                  << "****************************************************************************************************************\n"
-                  << "Shoot either one of Rock, Paper or Scissor"
-                  << "\n"
-                  << "\n"
-                  << "Rock Paper Scissor shoot!!\n"
-                  << "################################################################################################################\n";
-        player_shoot = shoot_player();
-    } while (player_shoot != "Rock" && player_shoot != "Paper" && player_shoot != "Scissor");
-
-    computer_shoot = shoot_computer();
-    std::cout << "Computer: " << computer_shoot << '\n';
-    std::cout << draw_hand(computer_shoot) << '\n';
-
-    std::cout << "Result: " << choose_winner(player_shoot, computer_shoot) << '\n' ;
 }
