@@ -86,8 +86,10 @@ int main() {
             std::cout << "Client disconnected"
                     << " | Active clients: " << client_count << "\n";
 
-            // Display all cached player moves
-            if (player_shoots.size() == 2) {
+            int number_of_players = player_shoots.size();
+
+            if (number_of_players % 2 == 0) {
+                // Even number of players
                 for (size_t i = 0; i < player_shoots.size(); i++) {
                     std::cout << "\n";
                     std::cout << "Player " << i + 1 << ":\n";
@@ -96,6 +98,11 @@ int main() {
                     if (i == 1)
                         std::cout << "Game result: " << choose_winner(player_shoots[i-1], player_shoots[i]) << '\n';
                 }
+            } else {
+                // Odd number of players
+                std::cout << '\n';
+                std::cout << "Message: Game cannot be played by odd number of players" << '\n';
+                std::cout << "Message: Waiting for other players to join..." << '\n';
             }
         }
 
@@ -105,5 +112,3 @@ int main() {
     close(server_fd);
     return 0;
 }
-
-
